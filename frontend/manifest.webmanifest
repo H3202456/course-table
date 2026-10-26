@@ -1,0 +1,26 @@
+{
+  "name": "Course Table · 我的课表",
+  "short_name": "课表",
+  "description": "个人课表 · Today 与周课表",
+  "lang": "zh-CN",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f7f7",
+  "theme_color": "#f7f7f7",
+  "icons": [
+    {
+      "src": "./static/icons/icon-192-v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./static/icons/icon-512-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

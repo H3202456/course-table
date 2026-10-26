@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta name="theme-color" content="#f7f7f7" />
+
+  <title>课表</title>
+  <meta name="application-name" content="Course Table" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./static/icons/apple-touch-icon-v2.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./static/icons/favicon-32-v2.png" />
+
+  <link rel="stylesheet" href="./static/styles.css?v=11" />
+  <link rel="stylesheet" href="./static/data-tools.css?v=10" />
+
+
+  <!-- =====================================================
+       课程详情弹窗专用样式
+       直接写在这里，避免旧 CSS 冲突
+  ====================================================== -->
+
+  <style>
+    #courseDetailDialog {
+      box-sizing: border-box;
+
+      width: 480px;
+      max-width: calc(100vw - 32px);
+
+      padding: 0;
+      margin: auto;
+
+      border: none;
+      border-radius: 24px;
+
+      background: #ffffff;
+
+      overflow: hidden;
+
+      box-shadow:
+        0 24px 70px rgba(0, 0, 0, 0.18);
+    }
+
+
+    #courseDetailDialog::backdrop {
+      background: rgba(0, 0, 0, 0.38);
+
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+
+    /* =====================================================
+       主体
+    ====================================================== */
+
+    #courseDetailDialog .detail-dialog {
+      box-sizing: border-box;
+
+      width: 100%;
+
+      padding: 30px;
+    }
+
+
+    /* =====================================================
+       顶部
+    ====================================================== */
+
+    #courseDetailDialog .detail-head {
+      display: flex;
+
+      align-items: flex-start;
+      justify-content: space-between;
+
+      gap: 20px;
+    }
+
+
+    #courseDetailDialog .detail-week-label {
+      margin: 0 0 7px 0;
+
+      color: #999999;
+
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+
+    #courseDetailDialog .detail-head h2 {
+      margin: 0;
+
+      color: #111111;
+
+      font-size: 28px;
+      line-height: 1.25;
+
+      font-weight: 700;
+
+      letter-spacing: -0.5px;
+    }
+
+
+    /* =====================================================
+       关闭按钮
+    ====================================================== */
+
+    #courseDetailDialog .close-button {
+      box-sizing: border-box;
+
+      flex: 0 0 36px;
+
+      width: 36px;
+      height: 36px;
+
+      padding: 0;
+      margin: 0;
+
+      border: none;
+      border-radius: 50%;
+
+      background: #f2f2f2;
+
+      color: #777777;
+
+      font-family: Arial, sans-serif;
+
+      font-size: 22px;
+      font-weight: 300;
+
+      line-height: 36px;
+
+      text-align: center;
+
+      cursor: pointer;
+    }
+
+
+    #courseDetailDialog .close-button:hover {
+      background: #e9e9e9;
+    }
+
+
+    /* =====================================================
+       时间
+    ====================================================== */
+
+    #courseDetailDialog .detail-main-info {
+      margin-top: 30px;
+
+      padding-bottom: 24px;
+
+      border-bottom: 1px solid #eeeeee;
+    }
+
+
+    #courseDetailDialog .detail-time {
+      margin: 0;
+
+      color: #111111;
+
+      font-size: 25px;
+      line-height: 1.3;
+
+      font-weight: 600;
+
+      letter-spacing: -0.4px;
+    }
+
+
+    #courseDetailDialog .detail-weekday {
+      margin-top: 8px;
+
+      color: #777777;
+
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       信息列表
+    ====================================================== */
+
+    #courseDetailDialog .detail-info-list {
+      padding: 8px 0;
+      margin: 0;
+    }
+
+
+    #courseDetailDialog .detail-info-row {
+      display: flex;
+
+      align-items: center;
+
+      min-height: 44px;
+
+      padding: 10px 0;
+
+      margin: 0;
+
+      gap: 20px;
+    }
+
+
+    #courseDetailDialog .detail-info-label {
+      flex: 0 0 50px;
+
+      width: 50px;
+
+      color: #999999;
+
+      font-size: 14px;
+
+      line-height: 1.5;
+    }
+
+
+    #courseDetailDialog .detail-info-value {
+      flex: 1;
+
+      min-width: 0;
+
+      color: #222222;
+
+      font-size: 14px;
+
+      line-height: 1.5;
+
+      text-align: right;
+
+      word-break: break-word;
+    }
+
+
+    /* =====================================================
+       操作按钮
+    ====================================================== */
+
+    #courseDetailDialog .detail-actions {
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 10px;
+
+      margin-top: 20px;
+    }
+
+
+    #courseDetailDialog .secondary-action,
+    #courseDetailDialog .danger-action {
+      box-sizing: border-box;
+
+      width: 100%;
+      height: 46px;
+
+      padding: 0;
+      margin: 0;
+
+      border: none;
+      border-radius: 12px;
+
+      font-family: inherit;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+      cursor: pointer;
+    }
+
+
+    #courseDetailDialog .secondary-action {
+      background: #f2f2f2;
+
+      color: #111111;
+    }
+
+
+    #courseDetailDialog .secondary-action:hover {
+      background: #e9e9e9;
+    }
+
+
+    #courseDetailDialog .danger-action {
+      background: #111111;
+
+      color: #ffffff;
+    }
+
+
+    #courseDetailDialog .danger-action:hover {
+      background: #292929;
+    }
+
+
+    /* =====================================================
+       添加 / 编辑课程弹窗
+    ====================================================== */
+
+    #courseDialog {
+      width: 480px;
+      max-width: calc(100vw - 32px);
+
+      padding: 0;
+
+      border: none;
+      border-radius: 24px;
+
+      background: #ffffff;
+
+      overflow: hidden;
+
+      box-shadow:
+        0 24px 70px rgba(0, 0, 0, 0.18);
+    }
+
+
+    #courseDialog::backdrop {
+      background: rgba(0, 0, 0, 0.38);
+
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+
+    /* =====================================================
+       移动端
+    ====================================================== */
+
+    @media (max-width: 520px) {
+
+      #courseDetailDialog,
+      #courseDialog {
+        width: calc(100vw - 24px);
+
+        border-radius: 22px;
+      }
+
+
+      #courseDetailDialog .detail-dialog {
+        padding: 24px;
+      }
+
+
+      #courseDetailDialog .detail-head h2 {
+        font-size: 25px;
+      }
+
+
+      #courseDetailDialog .detail-time {
+        font-size: 22px;
+      }
+
+    }
+    /* 学校的长备注（包括独立备注行）保留换行并允许完整折行。 */
+    #courseDetailDialog #detailCourseNote { white-space: pre-line; overflow-wrap: anywhere; }
+  </style>
+
+</head>
+
+
+<body>
+
+  <main class="app">
+
+
+    <!-- =====================================================
+         今天页面
+    ====================================================== -->
+
+    <section id="todayView" class="view active-view">
+
+
+      <!-- 顶部 -->
+
+      <header class="topbar">
+
+        <div>
+
+          <div class="week-label" id="weekLabel">
+            学期未设置
+          </div>
+
+
+          <h1>
+            今天
+          </h1>
+
+
+          <div class="date-label" id="todayDate">
+            --
+          </div>
+
+        </div>
+
+
+        <div class="header-data-actions">
+          <button class="data-open-btn" type="button" aria-label="数据管理">数据</button>
+          <button class="add-button" id="addCourseBtn" type="button" aria-label="添加课程"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" /></svg></button>
+        </div>
+
+      </header>
+
+
+      <!-- 下一节 -->
+
+      <section class="next-class" id="nextClass">
+
+        <div class="next-label">
+          下一节
+        </div>
+
+
+        <div class="next-empty">
+          正在加载……
+        </div>
+
+      </section>
+
+
+      <!-- 今天 -->
+
+      <section class="today-section">
+
+        <div class="section-header">
+
+          <h2>
+            今天
+          </h2>
+
+        </div>
+
+
+        <div id="todayCourses" class="course-list">
+
+          <div class="empty">
+            正在加载……
+          </div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         周课表页面
+    ====================================================== -->
+
+    <section id="weekView" class="view">
+
+
+      <!-- 周课表顶部 -->
+
+      <header class="week-topbar">
+
+        <div>
+
+          <div class="week-small-label" id="weekSemesterLabel">
+            课程表
+          </div>
+
+
+          <h1>
+            周课表
+          </h1>
+
+        </div>
+
+
+        <div class="header-data-actions">
+          <button class="data-open-btn" type="button" aria-label="数据管理">数据</button>
+          <button class="add-button" id="addCourseBtnWeek" type="button" aria-label="添加课程"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" /></svg></button>
+        </div>
+
+      </header>
+
+
+
+      <!-- 周切换 -->
+
+      <div class="week-switcher">
+
+        <button id="previousWeekBtn" class="week-arrow" type="button" aria-label="上一周">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6" /></svg>
+        </button>
+
+
+        <button id="currentWeekBtn" class="week-current" type="button">
+
+          <span id="selectedWeekLabel">
+            第 1 周
+          </span>
+
+
+          <span id="selectedWeekDate" class="selected-week-date">
+            --
+          </span>
+
+        </button>
+
+
+        <button id="nextWeekBtn" class="week-arrow" type="button" aria-label="下一周">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 18 6-6-6-6" /></svg>
+        </button>
+
+      </div>
+
+
+
+      <!-- 回到本周 -->
+
+      <button id="backToCurrentWeekBtn" class="back-current-week" type="button">
+        回到本周
+      </button>
+
+
+
+      <!-- 周课表 -->
+
+      <div class="week-table-wrapper">
+
+        <div id="weekTable" class="week-table">
+
+          <!-- JS 生成 -->
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         底部导航
+    ====================================================== -->
+
+    <nav class="bottom-nav">
+
+      <button class="nav-item active" id="todayBtn" type="button">
+        今天
+      </button>
+
+
+      <button class="nav-item" id="weekBtn" type="button">
+        周课表
+      </button>
+
+    </nav>
+
+  </main>
+
+
+
+  <!-- =====================================================
+       添加 / 编辑课程弹窗
+  ====================================================== -->
+
+  <dialog id="courseDialog">
+
+    <form id="courseForm" method="dialog">
+
+
+      <!-- 弹窗顶部 -->
+
+      <div class="dialog-head">
+
+        <h2 id="courseDialogTitle">
+          添加课程
+        </h2>
+
+
+        <button type="button" class="close-button" id="closeDialogBtn" aria-label="关闭">
+          <svg class="ui-icon ui-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6L18 18M18 6L6 18" /></svg>
+        </button>
+
+      </div>
+
+
+
+      <!-- 课程名称 -->
+
+      <label>
+
+        课程名称
+
+        <input name="name" type="text" required maxlength="100" placeholder="例如：人工智能导论" />
+
+      </label>
+
+
+
+      <!-- 星期 -->
+
+      <label>
+
+        星期
+
+        <select name="weekday">
+
+          <option value="1">
+            周一
+          </option>
+
+          <option value="2">
+            周二
+          </option>
+
+          <option value="3">
+            周三
+          </option>
+
+          <option value="4">
+            周四
+          </option>
+
+          <option value="5">
+            周五
+          </option>
+
+          <option value="6">
+            周六
+          </option>
+
+          <option value="7">
+            周日
+          </option>
+
+        </select>
+
+      </label>
+
+
+
+      <!-- 节数 -->
+
+      <div class="two-col">
+
+        <label>
+
+          开始节
+
+          <input name="start_section" type="number" min="1" max="12" value="1" required />
+
+        </label>
+
+
+        <label>
+
+          结束节
+
+          <input name="end_section" type="number" min="1" max="12" value="2" required />
+
+        </label>
+
+      </div>
+
+
+
+      <!-- 周数 -->
+
+      <div class="two-col">
+
+        <label>
+
+          开始周
+
+          <input name="start_week" type="number" min="1" max="60" value="1" required />
+
+        </label>
+
+
+        <label>
+
+          结束周
+
+          <input name="end_week" type="number" min="1" max="60" value="20" required />
+
+        </label>
+
+      </div>
+
+
+
+      <!-- 教室 -->
+
+      <label>
+
+        教室
+
+        <input name="classroom" type="text" maxlength="100" placeholder="例如：a302" />
+
+      </label>
+
+
+
+      <!-- 老师 -->
+
+      <label>
+
+        老师
+
+        <input name="teacher" type="text" maxlength="100" placeholder="可选" />
+
+      </label>
+
+
+
+      <!-- 备注 -->
+
+      <label>
+
+        备注
+
+        <textarea name="note" maxlength="500" placeholder="可选" rows="3"></textarea>
+
+      </label>
+
+
+
+      <!-- 保存 -->
+
+      <button class="primary-button" id="saveCourseBtn" type="submit">
+        保存课程
+      </button>
+
+
+
+      <!-- 状态 -->
+
+      <div id="saveStatus" class="save-status" aria-live="polite"></div>
+
+    </form>
+
+  </dialog>
+
+
+
+  <!-- =====================================================
+       课程详情弹窗
+       注意：整个页面只有这一个 courseDetailDialog
+  ====================================================== -->
+
+  <dialog id="courseDetailDialog">
+
+    <div class="detail-dialog">
+
+
+      <!-- 顶部 -->
+
+      <div class="detail-head">
+
+        <div>
+
+          <div class="detail-week-label" id="detailWeekLabel">
+            第 1–20 周
+          </div>
+
+
+          <h2 id="detailCourseName">
+            课程名称
+          </h2>
+
+        </div>
+
+
+        <button type="button" class="close-button" id="closeDetailDialogBtn" aria-label="关闭">
+          <svg class="ui-icon ui-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6L18 18M18 6L6 18" /></svg>
+        </button>
+
+      </div>
+
+
+
+      <!-- 时间 -->
+
+      <div class="detail-main-info">
+
+        <div class="detail-time" id="detailCourseTime">
+          08:00–09:40
+        </div>
+
+
+        <div class="detail-weekday" id="detailCourseWeekday">
+          周一 · 第 1–2 节
+        </div>
+
+      </div>
+
+
+
+      <!-- 信息 -->
+
+      <div class="detail-info-list">
+
+
+        <!-- 教室 -->
+
+        <div class="detail-info-row">
+
+          <div class="detail-info-label">
+            教室
+          </div>
+
+
+          <div class="detail-info-value" id="detailCourseClassroom">
+            未设置
+          </div>
+
+        </div>
+
+
+
+        <!-- 老师 -->
+
+        <div class="detail-info-row">
+
+          <div class="detail-info-label">
+            老师
+          </div>
+
+
+          <div class="detail-info-value" id="detailCourseTeacher">
+            未设置
+          </div>
+
+        </div>
+
+
+
+        <!-- 周数 -->
+
+        <div class="detail-info-row">
+
+          <div class="detail-info-label">
+            周数
+          </div>
+
+
+          <div class="detail-info-value" id="detailCourseWeeks">
+            第 1–20 周
+          </div>
+
+        </div>
+
+
+
+        <!-- 备注 -->
+
+        <div class="detail-info-row" id="detailNoteRow">
+
+          <div class="detail-info-label">
+            备注
+          </div>
+
+
+          <div class="detail-info-value" id="detailCourseNote">
+            无
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- 操作 -->
+
+      <div class="detail-actions">
+
+
+        <button type="button" class="secondary-action" id="editCourseBtn">
+          编辑课程
+        </button>
+
+
+        <button type="button" class="danger-action" id="deleteCourseBtn">
+          删除课程
+        </button>
+
+      </div>
+
+    </div>
+
+  </dialog>
+
+
+
+  <!-- 数据备份 / 导入 · V2，不影响既有课程弹窗 -->
+  <dialog id="dataDialog" aria-labelledby="dataDialogTitle">
+    <div class="data-panel">
+      <div class="data-head">
+        <div>
+          <p class="data-overline">本地数据</p>
+          <h2 id="dataDialogTitle">备份与恢复</h2>
+        </div>
+        <button type="button" id="closeDataDialogBtn" class="data-close" aria-label="关闭数据管理"><svg class="ui-icon ui-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6L18 18M18 6L6 18" /></svg></button>
+      </div>
+      <p class="data-description">课程只保存在当前浏览器。建议定期导出备份，换设备或清除浏览器数据前尤其如此。</p>
+      <!-- 下学期完整导入：本地解析 SZPU HTML，先预览并单独备份旧学期 -->
+      <div class="data-feature">
+        <div class="data-feature-copy">
+          <strong>导入新学期课表</strong>
+          <span>读取学校导出的 HTML（含 HTML 格式的 .xlsx），替换前先备份旧学期</span>
+        </div>
+        <button id="selectSchoolHtmlBtn" class="data-action" type="button">选择文件</button>
+      </div>
+      <div class="data-feature">
+        <div class="data-feature-copy">
+          <strong>学期设置</strong>
+          <span id="semesterSummary">正在读取当前学期…</span>
+        </div>
+        <button id="editSemesterBtn" class="data-action" type="button">设置学期</button>
+      </div>
+      <form id="semesterForm" class="data-semester-form" hidden>
+        <label class="data-label" for="semesterNameInput">学期名称</label>
+        <input class="data-select" id="semesterNameInput" type="text" maxlength="100" required placeholder="例如：2026–2027 第一学期" />
+        <label class="data-label" for="semesterStartInput">第 1 周的周一日期</label>
+        <div class="ct-date-control"><input id="semesterStartInput" class="data-select" type="date" required /><span class="ct-date-label is-empty" aria-hidden="true">请选择日期</span></div>
+        <p class="data-semester-hint">当前学期建议填 2026-09-07（周一）。以后换学期时再修改。仅修改日期对应关系，不会改动课程。</p>
+        <label class="data-label" for="semesterWeeksInput">学期总周数</label>
+        <input class="data-select" id="semesterWeeksInput" type="number" min="1" max="60" step="1" required />
+        <div class="data-semester-actions">
+          <button id="cancelSemesterBtn" class="data-action" type="button">取消</button>
+          <button id="saveSemesterBtn" class="data-primary" type="submit">保存学期设置</button>
+        </div>
+      </form>
+      <div class="data-feature">
+        <div class="data-feature-copy">
+          <strong>导出完整备份</strong>
+          <span>保存课程和学期设置为 JSON 文件</span>
+        </div>
+        <button id="exportBackupBtn" class="data-action" type="button">导出备份</button>
+      </div>
+      <div class="data-feature">
+        <div class="data-feature-copy">
+          <strong>导入 JSON</strong>
+          <span>支持本应用的备份，或标准课程 JSON 数组</span>
+        </div>
+        <button id="selectImportBtn" class="data-action" type="button">选择文件</button>
+      </div>
+      <input id="schoolHtmlFile" class="data-file-input" type="file" accept=".html,.htm,.xls,.xlsx,text/html" aria-label="选择 SZPU 导出的 HTML 课表" />
+      <section id="schoolHtmlPreview" class="data-preview school-html-preview" hidden>
+        <p class="data-overline">官方课程导出</p>
+        <h3>新学期课表预览</h3>
+        <p id="schoolHtmlSummary"></p>
+        <div id="schoolHtmlSamples" class="school-html-samples"></div>
+        <p id="schoolHtmlWarnings" class="data-warning" hidden></p>
+        <label class="data-label" for="newSemesterName">新学期名称</label>
+        <input id="newSemesterName" class="data-select" type="text" maxlength="100" placeholder="例如：2026–2027 第二学期" required />
+        <label class="data-label" for="newSemesterStart">第 1 周的周一日期</label>
+        <div class="ct-date-control"><input id="newSemesterStart" class="data-select" type="date" required /><span class="ct-date-label is-empty" aria-hidden="true">请选择日期</span></div>
+        <label class="data-label" for="newSemesterWeeks">学期总周数</label>
+        <input id="newSemesterWeeks" class="data-select" type="number" min="1" max="60" step="1" required />
+        <p class="data-warning">切换新学期会替换当前所有课程。导出的旧学期备份可随时通过「恢复完整备份」找回。</p>
+        <button id="downloadOldSemesterBtn" class="data-action school-html-backup" type="button">① 下载旧学期完整备份</button>
+        <label class="data-confirm school-html-confirm">
+          <input id="schoolHtmlBackupConfirm" type="checkbox" />
+          我已保存旧学期 JSON 备份，并核对了新学期名称与开始日期
+        </label>
+        <div class="data-semester-actions">
+          <button id="cancelSchoolHtmlBtn" class="data-action" type="button">返回</button>
+          <button id="applySchoolHtmlBtn" class="data-primary" type="button" disabled>② 确认切换到新学期</button>
+        </div>
+      </section>
+      <!-- 只解析用户本地选择的学校导出 HTML 中的「备注」行；不传到服务器 -->
+      <div class="data-feature">
+        <div class="data-feature-copy">
+          <strong>补充学校备注</strong>
+          <span>读取官方导出课表末尾的备注，不覆盖课程与个人修改</span>
+        </div>
+        <button id="selectSchoolNotesBtn" class="data-action" type="button">选择课表</button>
+      </div>
+      <input id="schoolNotesFile" class="data-file-input" type="file" accept=".html,.htm,.xlsx,text/html" aria-label="选择学校导出的 HTML 课表" />
+      <section id="schoolNotesPreview" class="data-preview" hidden>
+        <h3>学校备注预览</h3>
+        <p id="schoolNotesSummary"></p>
+        <div id="schoolNotesItems" class="school-sync-changes"></div>
+        <button id="applySchoolNotesBtn" class="data-primary" type="button" disabled>确认补充备注</button>
+      </section>
+      <!-- SZPU 只读预览入口仅在 localhost 展示，服务端仍需显式启用和独立验证 -->
+      <div id="localSchoolImportFeature" class="data-feature" hidden>
+        <div class="data-feature-copy">
+          <strong>从 SZPU 获取（本机测试）</strong>
+          <span>读取学校数据并预览；不写入服务器 SQLite，也不需要在这里输入密码</span>
+        </div>
+        <button id="fetchSchoolCoursesBtn" class="data-action" type="button">获取课表</button>
+      </div>
+      <input id="importJsonFile" class="data-file-input" type="file" accept=".json,application/json" aria-label="选择 JSON 文件" />
+      <section id="importPreview" class="data-preview" hidden>
+        <h3>导入预览</h3>
+        <p id="importSummary"></p>
+        <label id="importModeLabel" class="data-label" for="importMode">导入方式</label>
+        <select id="importMode" class="data-select">
+          <option value="merge">合并课程（保留现有数据）</option>
+          <option id="restoreOption" value="replace" hidden>恢复完整备份（覆盖现有数据）</option>
+        </select>
+        <p id="schoolImportNotice" class="data-warning" hidden>学校更新会自动应用能够确定的变化；如果你和学校都修改了同一个字段，会保留本地值并提示冲突。无法安全匹配的课程不覆盖；学校本次未返回的旧课程也不会自动删除。</p>
+        <div id="schoolSyncChanges" class="school-sync-changes" hidden aria-live="polite"></div>
+        <label id="schoolTermConfirmRow" class="data-confirm" hidden>
+          <input id="schoolTermConfirm" type="checkbox" />
+          我已确认学期一致、查看本次变更，并备份重要修改
+        </label>
+        <p id="replaceWarning" class="data-warning" hidden>注意：将删除当前所有课程，并用备份中的课程和学期设置替换。建议先导出一份当前备份。</p>
+        <label id="confirmRow" class="data-confirm" hidden>
+          <input id="replaceConfirm" type="checkbox" />
+          我确认覆盖当前所有课程及学期设置
+        </label>
+        <button id="confirmImportBtn" type="button" class="data-primary" disabled>合并课程到本地</button>
+      </section>
+      <p id="dataStatus" class="data-status" aria-live="polite" role="status"></p>
+    </div>
+  </dialog>
+
+  <!-- =====================================================
+       JavaScript
+  ====================================================== -->
+
+  <!-- Native iOS date picker stays interactive; visible value is centered by our own layout. -->
+  <script>
+    (() => {
+      const dateFields = [
+        { id: 'semesterStartInput', host: 'semesterForm' },
+        { id: 'newSemesterStart', host: 'schoolHtmlPreview' },
+      ];
+      function shownDate(value) {
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+        return match ? `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日` : '请选择日期';
+      }
+      for (const { id, host } of dateFields) {
+        const input = document.getElementById(id);
+        const label = input?.parentElement?.querySelector('.ct-date-label');
+        const hostNode = document.getElementById(host);
+        if (!input || !label || !hostNode) continue;
+        const sync = () => {
+          label.textContent = shownDate(input.value);
+          label.classList.toggle('is-empty', !input.value);
+        };
+        input.addEventListener('input', sync);
+        input.addEventListener('change', sync);
+        // Semester values are assigned programmatically just before their forms open.
+        new MutationObserver(sync).observe(hostNode, {
+          attributes: true, attributeFilter: ['hidden'],
+        });
+        window.addEventListener('pageshow', sync);
+        sync();
+      }
+    })();
+  </script>
+
+  <script src="./static/storage.js?v=6"></script>
+  <script src="./static/app.js?v=9"></script>
+  <script src="./static/school-html-parser.js?v=2"></script>
+  <script src="./static/data-tools.js?v=9"></script>
+  <script src="./static/school-html-import-ui.js?v=3"></script>
+  <script src="./static/pwa.js?v=1"></script>
+
+</body>
+
+</html>

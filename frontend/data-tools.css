@@ -1,0 +1,176 @@
+/* Local Data V2 — independent settings sheet, no changes to existing UI. */
+.header-data-actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.data-open-btn {
+  height: 42px; min-width: 52px; padding: 0 12px;
+  background: #fff; border: 1px solid #e5e5e5; border-radius: 22px;
+  color: #484848; font-size: 13px; font-weight: 600;
+  transition: background 160ms ease, transform 160ms ease;
+}
+.data-open-btn:hover { background: #f1f2f3; }
+.data-open-btn:active { transform: scale(.97); }
+.data-file-input { display: none; }
+#dataDialog {
+  box-sizing: border-box; width: min(460px, calc(100% - 32px));
+  max-height: min(82dvh, 760px); overflow: auto;
+  padding: 0; border: 1px solid rgba(255,255,255,.85);
+  border-radius: 28px; background: #fff;
+  box-shadow: 0 24px 70px rgba(20,22,27,.20);
+  overscroll-behavior: contain;
+}
+#dataDialog::backdrop {
+  background: rgba(22,24,28,.32);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+}
+.data-panel { padding: 25px 24px 24px; }
+.data-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.data-overline { color: #85858c; font-size: 12px; margin: 0 0 6px; }
+.data-head h2 { font-size: 24px; line-height: 1.24; letter-spacing: -.55px; margin: 0; }
+.data-close { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 50%; background: #f2f2f2; color: #777; display: inline-flex; align-items: center; justify-content: center; padding: 0; line-height: 0; }
+.data-close .ui-icon-close { width: 18px; height: 18px; display: block; flex: 0 0 18px; pointer-events: none; }
+.data-description { color: #71717a; font-size: 13px; line-height: 1.6; margin: 15px 0 22px; }
+.data-feature { border-top: 1px solid #eeeff1; padding: 17px 0; display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.data-feature-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 4px; }
+.data-feature-copy strong { font-size: 14px; font-weight: 650; color: #222; }
+.data-feature-copy span { font-size: 12px; line-height: 1.4; color: #898990; }
+.data-action { padding: 0 12px; flex: 0 0 auto; min-height: 36px; background: #f0f1f3; border-radius: 11px; font-size: 12px; font-weight: 600; color: #34343b; }
+.data-action:hover { background: #e6e7eb; }
+.data-preview { margin-top: 6px; background: #f7f7f8; border: 1px solid #e8e8ea; padding: 16px; border-radius: 16px; }
+.data-preview h3 { font-size: 15px; font-weight: 650; margin: 0 0 8px; }
+.data-preview p { color: #676771; font-size: 12px; line-height: 1.6; margin: 8px 0 14px; }
+.data-label { display: block; font-size: 12px; font-weight: 600; margin: 12px 0 7px; color: #444; }
+.data-select { box-sizing: border-box; width: 100%; min-height: 42px; padding: 8px 12px; border-radius: 10px; border: 1px solid #e0e0e4; background: #fff; font-size: 13px; color: #262629; }
+.data-preview .data-warning { color: #9b4e27; }
+.data-confirm { margin-bottom: 0; line-height: 1.55; font-size: 12px; color: #5c3a2a; display: flex; align-items: start; gap: 8px; margin: 8px 0 14px; }
+.data-confirm input[type="checkbox"] { box-sizing: border-box; appearance: auto; -webkit-appearance: checkbox; width: 16px; height: 16px; min-width: 16px; max-width: 16px; padding: 0; margin: 1px 0 0; flex: 0 0 16px; border-radius: 3px; }
+.data-primary { width: 100%; margin-top: 14px; background: #171719; color: #fff; min-height: 43px; border-radius: 12px; font-weight: 600; font-size: 13px; }
+.data-primary:disabled { opacity: .42; cursor: not-allowed; }
+.data-status { min-height: 17px; margin: 14px 0 0; font-size: 12px; color: #73737b; line-height: 1.5; }
+.data-status.error { color: #a23d3d; }
+[hidden] { display: none !important; }
+@media (max-width: 600px) {
+  #dataDialog[open] {
+    position: fixed; inset: auto 16px calc(16px + env(safe-area-inset-bottom, 0px)) 16px;
+    width: calc(100% - 32px); max-width: 460px;
+    max-height: min(82dvh, calc(100dvh - 42px - env(safe-area-inset-bottom, 0px)));
+    margin: 0 auto;
+    animation: data-sheet-in 260ms cubic-bezier(.22,1,.36,1) both;
+  }
+  .data-panel { padding: 24px 20px 21px; min-width: 0; }
+  /* 编辑学期时仅展示表单，避免与备份/导入叠在一起形成超长面板。 */
+  #dataDialog.semester-editing .data-description,
+  #dataDialog.semester-editing .data-feature,
+  #dataDialog.semester-editing #importPreview { display: none !important; }
+  #dataDialog.semester-editing .data-semester-form { margin-top: 20px; }
+  #dataDialog.semester-editing .data-panel { padding-bottom: 20px; }
+  #dataDialog[open] { -webkit-overflow-scrolling: touch; overflow-x: hidden; overflow-y: auto; }
+  #dataDialog .data-semester-form { min-width: 0; }
+  #dataDialog .data-semester-form .data-select {
+    display: block; box-sizing: border-box; min-width: 0; max-width: 100%; width: 100%;
+    font-size: 16px; line-height: normal;
+  }
+  /* iOS WebKit: the native date control can overflow width:100% and center its value.
+     Keep its picker/validation, but give it the same box sizing as other fields. */
+  #dataDialog input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    box-sizing: border-box;
+    width: 100%; max-width: 100%; min-width: 0;
+    height: 46px; min-height: 46px;
+    padding: 0 12px;
+    text-align: left;
+    border-radius: 10px;
+  }
+  #dataDialog input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1.25em;
+  }
+  #dataDialog input[type="date"]::-webkit-datetime-edit { padding: 0; text-align: left; }
+  #dataDialog input[type="date"]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+
+  #dataDialog .data-semester-form input[type="number"] { height: 46px; min-height: 46px; }
+  #dataDialog .data-semester-form input[type="text"] { height: 46px; min-height: 46px; }
+}
+@keyframes data-sheet-in { from { opacity: .7; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { #dataDialog[open] { animation: none; } .data-open-btn { transition: none; } }
+
+/* School Import V1: show only after explicitly enabling local preview. */
+#schoolImportNotice { padding: 9px 0 0; }
+
+/* School Import V2: restrained three-way comparison preview. */
+.school-sync-changes { display: grid; gap: 6px; margin: 10px 0 14px; max-height: 180px; overflow: auto; overscroll-behavior: contain; }
+.school-sync-item { background: #fff; border: 1px solid #e9e9ed; border-radius: 10px; padding: 9px 11px; }
+.school-sync-item strong { display: block; font-size: 12px; line-height: 1.5; color: #303038; }
+.school-sync-item span { display: block; font-size: 11px; line-height: 1.5; color: #76767c; overflow-wrap: anywhere; }
+.school-sync-item.conflict { border-color: #f0d1bd; background: #fffaf7; }
+.school-sync-count { margin: 7px 0 !important; font-weight: 600; }
+
+/* Semester settings V1: explicit first-week date; no background data rewrite. */
+.data-semester-form { margin: 0 0 8px; padding: 14px 16px 16px; background: #f7f7f8; border: 1px solid #ececee; border-radius: 16px; }
+.data-semester-form .data-label:first-child { margin-top: 0; }
+.data-semester-form .data-select { font-family: inherit; }
+.data-semester-hint { font-size: 12px; line-height: 1.6; margin: 8px 0 10px; color: #777780; }
+.data-semester-actions { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.data-semester-actions .data-primary { flex: 1; width: auto; margin-top: 0; }
+.data-semester-actions .data-action { min-height: 43px; }
+
+/* School HTML Import V1: dedicated narrow viewport preview, without nested long actions. */
+#dataDialog.school-html-importing .data-description,
+#dataDialog.school-html-importing .data-feature,
+#dataDialog.school-html-importing #semesterForm,
+#dataDialog.school-html-importing #importPreview,
+#dataDialog.school-html-importing #schoolNotesPreview { display: none !important; }
+#dataDialog.school-html-importing .school-html-preview { margin-top: 20px; }
+.school-html-samples { display: grid; gap: 7px; max-height: 175px; overflow-y: auto; }
+.school-html-sample { background: white; border: 1px solid #e7e7eb; border-radius: 10px; padding: 10px 12px; }
+.school-html-sample strong { display: block; font-size: 13px; line-height: 1.4; }
+.school-html-sample span { display: block; color: #7b7b82; font-size: 11px; line-height: 1.5; margin-top: 4px; }
+.school-html-backup { width: 100%; margin-top: 10px; min-height: 42px; }
+.school-html-confirm { margin-top: 13px; }
+.school-html-preview .data-semester-actions { margin-top: 6px; }
+.school-html-preview .data-semester-actions .data-primary { margin: 0; }
+@media (max-width: 600px) {
+  .school-html-preview .data-select { font-size: 16px; min-width: 0; max-width: 100%; }
+  .school-html-preview input[type=date] { height: 46px; min-height: 46px; }
+}
+
+
+/* iOS date value centering V2: custom visible text + native transparent picker hit target.
+   WebKit sometimes top-aligns the text inside display:block date controls. */
+#dataDialog .ct-date-control {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%; min-width: 0; max-width: 100%;
+  height: 46px;
+  border: 1px solid #e0e0e4;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+#dataDialog .ct-date-control .ct-date-label {
+  box-sizing: border-box;
+  display: flex; align-items: center;
+  width: 100%; height: 100%;
+  padding: 0 12px;
+  color: #262629;
+  font-family: inherit; font-size: 16px; font-weight: 400; line-height: 1.25;
+  text-align: left;
+  white-space: nowrap;
+  pointer-events: none;
+}
+#dataDialog .ct-date-control .ct-date-label.is-empty { color: #898990; }
+#dataDialog .ct-date-control input[type="date"] {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  box-sizing: border-box;
+  display: block;
+  margin: 0; padding: 0;
+  width: 100%; height: 100%; min-height: 0; max-width: none;
+  border: none; border-radius: 0;
+  opacity: 0.001;
+  cursor: pointer;
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+#dataDialog .ct-date-control:focus-within { outline: 2px solid #757d8d; outline-offset: 2px; }
